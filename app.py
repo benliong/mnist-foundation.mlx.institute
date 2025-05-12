@@ -79,7 +79,7 @@ def connect_to_db():
         password=os.environ.get(DB_CONFIG["pass_env"], DB_CONFIG["pass_default"])
     )
 
-def save_prediction(prediction, true_label=None):
+def save_prediction(prediction, confidence, true_label=None):
     try:
         conn = connect_to_db()
         cursor = conn.cursor()
@@ -90,14 +90,15 @@ def save_prediction(prediction, true_label=None):
                 id SERIAL PRIMARY KEY,
                 timestamp TIMESTAMP,
                 prediction INTEGER,
+                confidence FLOAT,
                 true_label INTEGER
             )
         """)
         
         # Insert prediction
         cursor.execute(
-            "INSERT INTO prediction_logs (timestamp, prediction, true_label) VALUES (%s, %s, %s)",
-            (datetime.now(), prediction, true_label)
+            "INSERT INTO prediction_logs (timestamp, prediction, confidence, true_label) VALUES (%s, %s, %s, %s)",
+            (datetime.now(), prediction, confidence, true_label)
         )
         
         conn.commit()
@@ -131,6 +132,7 @@ with col1:
             
             # Store in session state for later saving
             st.session_state.last_prediction = prediction
+            st.session_state.last_confidence = confidence
         else:
             st.warning("Please draw a digit first!")
 
@@ -140,9 +142,9 @@ with col2:
     true_label = st.number_input("True label:", min_value=0, max_value=9, step=1)
     
     if st.button("Submit"):
-        if 'last_prediction' in st.session_state:
+        if 'last_prediction' in st.session_state and 'last_confidence' in st.session_state:
             # Save prediction and true label to database
-            save_prediction(st.session_state.last_prediction, true_label)
+            save_prediction(st.session_state.last_prediction, st.session_state.last_confidence, true_label)
             st.success("Saved to database!")
         else:
             st.warning("Make a prediction first!")
@@ -164,7 +166,7 @@ try:
     
     if cursor.fetchone()[0]:
         cursor.execute("""
-            SELECT timestamp, prediction, true_label 
+            SELECT timestamp, prediction, true_label, confidence 
             FROM prediction_logs 
             ORDER BY timestamp DESC
             LIMIT 10
@@ -174,7 +176,7 @@ try:
         import pandas as pd
         data = cursor.fetchall()
         if data:
-            df = pd.DataFrame(data, columns=["timestamp", "pred", "label"])
+            df = pd.DataFrame(data, columns=["timestamp", "Prediction", "True Label", "confidence"])
             st.dataframe(df)
         else:
             st.info("No prediction history yet.")

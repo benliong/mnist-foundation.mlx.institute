@@ -3,15 +3,12 @@ import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-
-BATCH_SIZE   = 128
-EPOCHS       = 5
-DEVICE       = "cuda" if torch.cuda.is_available() else "cpu"
+from config import BATCH_SIZE, EPOCHS, DEVICE, MNIST_MEAN, MNIST_STD
 
 # 1 - MNIST loaders ----------------------------------------------------------
 transform = transforms.Compose([
     transforms.ToTensor(),
-    transforms.Normalize((0.1307,), (0.3081,))         # mean / std
+    transforms.Normalize((MNIST_MEAN,), (MNIST_STD,))         # mean / std
 ])
 
 train_set = datasets.MNIST(root="data", train=True,  download=True, transform=transform)

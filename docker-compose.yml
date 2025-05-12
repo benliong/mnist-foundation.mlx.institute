@@ -21,5 +21,16 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  trainer:
+    build: .
+    command: python train.py        # only runs when you call it
+    volumes:
+      - .:/app                      # persist model.pt to host
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - capabilities: [gpu]
+
 volumes:
   pgdata:

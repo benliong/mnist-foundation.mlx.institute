@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    ports: ["8501:8501"]
+    depends_on: [db]
+    environment:
+      DB_HOST: db
+      DB_NAME: mnist_logs
+      DB_USER: mnist_user
+      DB_PASS: mnist_pass
+
+  db:
+    image: postgres:16-alpine          # small, latest LTS  [oai_citation:1‡Docker Hub](https://hub.docker.com/layers/library/postgres/16-alpine/images/sha256-3a1cc9f0f412416ff3c6ca7c75f6e5f97c5c00f3b991d6d31a553eca1ff75f19?utm_source=chatgpt.com)
+    restart: always
+    environment:
+      POSTGRES_DB: mnist_logs
+      POSTGRES_USER: mnist_user
+      POSTGRES_PASSWORD: mnist_pass
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

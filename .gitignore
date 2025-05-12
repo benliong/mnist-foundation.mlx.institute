@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual-envs / editors
+.venv/
+.env
+.vscode/
+
+# Data / models
+model.pt               # track with Git LFS instead, if needed
+pgdata/                # Postgres volume
+*.sqlite
+*.log
+
+# Docker build cache
+*.tar

@@ -1,0 +1,4 @@
+pgdata
+*.log
+__pycache__/
+.venv

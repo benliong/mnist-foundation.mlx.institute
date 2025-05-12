@@ -177,7 +177,16 @@ try:
         data = cursor.fetchall()
         if data:
             df = pd.DataFrame(data, columns=["timestamp", "Prediction", "True Label", "confidence"])
-            st.dataframe(df)
+            
+            # Add styling based on prediction accuracy
+            def highlight_prediction(row):
+                if row["Prediction"] == row["True Label"]:
+                    return ['background-color: #d4f7d4'] * len(row)  # Light green for correct
+                else:
+                    return ['background-color: #fad6d5'] * len(row)  # Light red for incorrect
+            
+            styled_df = df.style.apply(highlight_prediction, axis=1)
+            st.dataframe(styled_df)
         else:
             st.info("No prediction history yet.")
     
